@@ -1,0 +1,112 @@
+\documentclass[11pt]{article}   %Needed for every document
+\usepackage[margin=0.75in]{geometry}           %Going to help get paper size right
+\geometry{letterpaper}          %Normal paper
+\usepackage{multicol}
+\usepackage{graphicx,epsfig}    %Graphics packages and pictures
+\usepackage{amssymb}            %Package for symbols
+
+\usepackage{epstopdf}
+\usepackage{color}
+\graphicspath{ {Figures/} }
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}  %Need for pictures
+\newcommand{\ignore}[1]{} %used to make inline comments
+\definecolor{gray}{rgb}{0.1, 0.1, 0.1}
+\newcommand{\gray}[1]{\colorbox{gray}{#1}}
+\usepackage[utf8]{inputenc}
+\usepackage[most]{tcolorbox}
+\usepackage{hyperref}
+\usepackage{listings}
+
+\title{H5 Tutorials}
+\author{Steven Walton\\     %Note that we don't close until after address to keep in title format.
+\text{walton\{dot\}stevenj\{at\}gmail\{dot\}com}\\
+\text{\href{https://github.com/stevenwalton/tutorials}{https://github.com/stevenwalton/tutorials}}\\
+\text{Last Updated:}}
+
+\tcbset{
+   frame code={}
+   center title,
+          left=-15pt, % -15pt to adjust for tab alignment that is used in my style
+          right=0pt,
+          top=0pt,
+          bottom=0pt,
+          colback=gray!70,
+          colframe=white,
+          width=\dimexpr\textwidth\relax,
+          enlarge left by 0mm,
+          boxsep=5pt,
+          arc=0pt,outer arc=0pr,}
+
+\begin{document}
+\maketitle
+
+\section*{What is H5 and why do I want it?}
+H5, or HDF5, is a file format created for loading and saving large datasets quickly and efficiently. Two common formats people may be familiar with already
+are ASCII and Binary. ASCII is easy to read, but is large and slow. Binary is fast, but can be difficult to migrate. HDF5 provides a standardized file format
+that anyone can use. It also provides easy organization by including a POSIX like structure. If you do not have the h5 headers installed you can either do it
+through your package manager of go to \href{https://www.hdfgroup.org/downloads/index.html}{The hdfgroup's website} to download it. Also, if you have Anaconda
+installed for use through Python, you will already have the h5 commands and libraries.
+\begin{tcolorbox}
+   \begin{lstlisting}
+   h5c++ -show
+   g++ -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE 
+      -L/home/steven/.anaconda/lib -lhdf5_hl_cpp -lhdf5_cpp -lhdf5_hl 
+      -lhdf5 -lrt -lz -ldl -lm -Wl,-rpath -Wl,/home/steven/.anaconda/lib
+   \end{lstlisting}
+\end{tcolorbox}
+A common way to view the data that is inside an h5file would be by running the following command
+\begin{tcolorbox}
+   \begin{lstlisting}
+   h5dump -H file.h5
+   \end{lstlisting}
+\end{tcolorbox}
+This will return the headers for the h5 file. This will give you the directory structure, showing the groups and array names, as well as the type of data that
+is stored. Another way to check the data is to open it up in python. I like to do this because it is easy to manipulate the data and to verify.
+\begin{tcolorbox}
+   \begin{lstlisting}
+   import h5py as h5
+   import numpy as np
+   f = h5.File("data.h5",'r')
+   f.keys()
+   # We will get back something like ['group1','data1']
+   # to check the contents of group1 we do
+   f['group1'].keys()
+   # we can check the data by
+   data = np.asarray(f['data'])
+   \end{lstlisting}
+\end{tcolorbox}
+
+The hdfgroup has some tutorials to make and read some h5 files, but I find these difficult to learn from and may not be obvious for those not well versed
+in C++, but just need to use the data formats. 
+
+\section*{Reading Data}
+Let's say that you just want to read the data and turn it into a vector. I wrote a small function to do just that for you. It does not require you to actually
+know what size the data is and just requires you to know the name and the data type. Here we will assume IEEE standard float.
+\begin{tcolorbox} 
+   \begin{lstlisting}
+   vector<float> readh5var(string path, string varName)
+   {
+      H5std_string FILE_NAME(path);
+      H5File file(FILE_NAME, H5F_ACC_RDONLY); // Opens file as read only
+      DataSet dataset = file.openDataSet(varName);
+      DataSpace dataspace = dataset.getSpace();
+      // gets number of points
+      const int arrSize = dataspace.getSimpleExtentNpoints(); 
+      
+      float *data = new float[arrSize]; // allocate array size at run time
+      dataset.read(data, PredType::IEEE_F32BE); // read float data
+      vector<float> v(data, data + arrSize); // convert array to vector
+      // Protect our memory
+      delete[] data;
+      dataspace.close();
+      dataset.close()
+      file.close();
+      return v;
+   }
+   \end{lstlisting}
+\end{tcolorbox}
+Recognize here that we are using the standard namespace as well as the H5 namespace. The inputs to this function are the path to the h5 file and the full path of the float
+data that you wish to import. Be sure to include your h5 header and vector.
+
+
+\end{document}
