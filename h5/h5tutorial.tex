@@ -16,6 +16,7 @@
 \usepackage[most]{tcolorbox}
 \usepackage{hyperref}
 \usepackage{listings}
+\usepackage{textcomp} % for the angle brackets
 
 \title{H5 Tutorials}
 \author{Steven Walton\\     %Note that we don't close until after address to keep in title format.
@@ -107,6 +108,23 @@ know what size the data is and just requires you to know the name and the data t
 \end{tcolorbox}
 Recognize here that we are using the standard namespace as well as the H5 namespace. The inputs to this function are the path to the h5 file and the full path of the float
 data that you wish to import. Be sure to include your h5 header and vector.
+
+\section*{importAnyData}
+The code is too long to include here in full, so refer to the \href{https://github.com/stevenwalton/tutorials/blob/master/h5/importAnyData.cpp}{GitHub} copy of the code.\\ \\
+This code will allow you to import any (STD\_I32BE/IEEE\_F32BE) data with a single getData call. 
+This is accomplished with the use of a Proxy class. We cannot normally overload the return type
+of a function, but if we use this proxy class we can cheat our way around that. 
+\\ \\
+To do this we first need to create our regular functions. In this case we have a function that will
+import and return STD\_I32BE data to a integer vector and another that does the same for IEEE\_F32BE
+data (back to vector\textlangle{}float\textrangle{})
+\\ \\
+To modify this code you need to create another normal like function for the new data type. Note that
+if you use a different type of float, even if you want to return vector\textlangle{}float\textrangle{}
+you will need to change some code because we explicitly state that we are looking for IEEE\_F32BE
+data in our import function.
+\\ \\
+The code itself contains a lot of comments, but does build upon previous work.
 
 
 \end{document}

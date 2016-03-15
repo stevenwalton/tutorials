@@ -7,6 +7,7 @@
  * looking at STD_INT32BE and IEEE_F32BE as possible import types. With our existing skeleton
  * it is as simple as adding a new function to LoadH5 and the appropriate overload to the Proxy
  * class (see below) to add more data types. 
+ * Note that you must compile with the -std=c++11 parameter
  * 
  * USAGE: ./importAnyData nameOfFile.h5 nameOfVariable
  * This is example code, and as such it will import only one dataset and then output the
