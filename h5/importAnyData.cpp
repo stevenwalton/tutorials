@@ -1,3 +1,17 @@
+/*
+ * *******************************************************************************************
+ * *************************** Created by: Steven Walton *************************************
+ * *************************** walton.stevenj@gmail.com  *************************************
+ * *******************************************************************************************
+ * This code serves as a skeleton for loading any type of H5 data. In our case we are only
+ * looking at STD_INT32BE and IEEE_F32BE as possible import types. With our existing skeleton
+ * it is as simple as adding a new function to LoadH5 and the appropriate overload to the Proxy
+ * class (see below) to add more data types. 
+ * 
+ * USAGE: ./importAnyData nameOfFile.h5 nameOfVariable
+ * This is example code, and as such it will import only one dataset and then output the
+ * first 10 elements, to verify that it is working correctly
+ */
 #include <iostream>
 #include <vector>
 #include <string>
@@ -6,25 +20,30 @@
 using namespace std;
 using namespace H5;
 
-class getDemFiles
+// This class will serve as our data loader. In the main function this will be called to load
+// any data from any h5 file
+class LoadH5
 {
    private:
       string variable;
       string filename;
 
    public:
-      //getDemFiles;
+      // We have to first create the functions with proper return types
       vector<int> getDataint() const;
       vector<float> getDatafloat() const;
-      void getVar(string var) {variable = var;};
+      void setVarName(string var) {variable = var;};
+      void setFileName(string path) {filename = path;};
 
-      void fileName(string path) {filename = path;};
+      // We now make a proxy class so that we can overload the return type and use a single
+      // function to get data whether int or float. This could be made more advanced by 
+      // adding more data types (such as double). 
       class Proxy
       {
          private:
-            getDemFiles const* myOwner;
+            LoadH5 const* myOwner;
          public:
-            Proxy( const getDemFiles* owner ) : myOwner( owner ) {}
+            Proxy( const LoadH5* owner ) : myOwner( owner ) {}
             operator vector<int>() const
             {
                return myOwner->getDataint();
@@ -34,27 +53,30 @@ class getDemFiles
                return myOwner->getDatafloat();
             }
       };
+      // Here we use the Proxy class to have a single getData function
       Proxy getData() const {return Proxy(this);}
-
 };
 
 
-vector<int> getDemFiles::getDataint() const
+// Our int loading function
+vector<int> LoadH5::getDataint() const
 {
    H5std_string FILE_NAME(filename);
-   H5File file(FILE_NAME, H5F_ACC_RDONLY);
+   H5File file(FILE_NAME, H5F_ACC_RDONLY); // Only reads
    DataSet dataset = file.openDataSet(variable);
    DataType datatype = dataset.getDataType();
    DataSpace dataspace = dataset.getSpace();
-   const int npts = dataspace.getSimpleExtentNpoints();
-   H5T_class_t classt = datatype.getClass();
+   const int npts = dataspace.getSimpleExtentNpoints(); // Gets length of data
+   H5T_class_t classt = datatype.getClass(); // Gets the data type of the data
+   // Let's make a quick error check
    if ( classt != 0 )
    {
       cout << "This is not an int... you can't save this as an int." << endl;
    }
-   int *data = new int[npts];
-   dataset.read(data, PredType::STD_I32BE);
-   vector<int> v(data, data + npts);
+   int *data = new int[npts]; // allocate at run time what the size will be
+   dataset.read(data, PredType::STD_I32BE); // Our standard integer
+   vector<int> v(data, data + npts); // Arrays are nice, but vectors are better
+   // Manage our memory properly
    delete[] data;
    dataspace.close();
    datatype.close();
@@ -63,7 +85,8 @@ vector<int> getDemFiles::getDataint() const
    return v;
 }
 
-vector<float> getDemFiles::getDatafloat() const
+// Same as our int function, but with float. Uses IEEE_F32BE
+vector<float> LoadH5::getDatafloat() const
 {
    H5std_string FILE_NAME(filename);
    H5File file(FILE_NAME, H5F_ACC_RDONLY);
@@ -100,9 +123,9 @@ int main(int argc, char **argv)
    string name = argv[1];
    string varname = argv[2];
 
-   getDemFiles dset;
-   dset.fileName(name);
-   dset.getVar(varname);
+   LoadH5 dset;
+   dset.setFileName(name);
+   dset.setVarName(varname);
    vector<float> mydata = dset.getData();
    cout << "I GOT THE DATA" << endl;
    for (size_t i = 0; i < 10; i++)
