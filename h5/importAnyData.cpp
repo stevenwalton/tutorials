@@ -62,6 +62,7 @@ class LoadH5
 // Our int loading function
 vector<int> LoadH5::getDataint() const
 {
+   cout << "Getting int data" << endl;
    H5std_string FILE_NAME(filename);
    H5File file(FILE_NAME, H5F_ACC_RDONLY); // Only reads
    DataSet dataset = file.openDataSet(variable);
@@ -75,7 +76,7 @@ vector<int> LoadH5::getDataint() const
       cout << "This is not an int... you can't save this as an int." << endl;
    }
    int *data = new int[npts]; // allocate at run time what the size will be
-   dataset.read(data, PredType::STD_I32BE); // Our standard integer
+   dataset.read(data, PredType::STD_I32LE); // Our standard integer
    vector<int> v(data, data + npts); // Arrays are nice, but vectors are better
    // Manage our memory properly
    delete[] data;
@@ -89,6 +90,7 @@ vector<int> LoadH5::getDataint() const
 // Same as our int function, but with float. Uses IEEE_F32BE
 vector<float> LoadH5::getDatafloat() const
 {
+   cout << "Getting float data" << endl;
    H5std_string FILE_NAME(filename);
    H5File file(FILE_NAME, H5F_ACC_RDONLY);
    DataSet dataset = file.openDataSet(variable);
@@ -127,7 +129,7 @@ int main(int argc, char **argv)
    LoadH5 dset;
    dset.setFileName(name);
    dset.setVarName(varname);
-   vector<float> mydata = dset.getData();
+   vector<int> mydata = dset.getData();
    cout << "I GOT THE DATA" << endl;
    for (size_t i = 0; i < 10; i++)
       cout << mydata[i] << endl;

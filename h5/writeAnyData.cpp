@@ -69,8 +69,8 @@ void WriteH5::writeData(vector<int> data)
       {
          H5File file(FILE_NAME, H5F_ACC_RDWR);
          DataSpace dsp = DataSpace(vrank,dims);
-         DataSet dset = file.createDataSet(DATASET_NAME, PredType::STD_I32BE, dsp);
-         dset.write(a, PredType::NATIVE_INT);
+         DataSet dset = file.createDataSet(DATASET_NAME, PredType::STD_I32LE, dsp);
+         dset.write(a, PredType::STD_I32LE);
 
          // remember to close everything and delete our arrays
          dset.close();
@@ -127,7 +127,7 @@ void WriteH5::writeData(vector<float> data)
          
          DataSpace dsp = DataSpace(vrank,dims);
          DataSet dset = file.createDataSet(DATASET_NAME, PredType::IEEE_F32BE, dsp);
-         dset.write(a, PredType::NATIVE_FLOAT);
+         dset.write(a, PredType::IEEE_F32BE);
          cout << "Data written" << endl;
 
          dset.close();
