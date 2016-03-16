@@ -111,12 +111,12 @@ data that you wish to import. Be sure to include your h5 header and vector.
 
 \section*{importAnyData}
 The code is too long to include here in full, so refer to the \href{https://github.com/stevenwalton/tutorials/blob/master/h5/importAnyData.cpp}{GitHub} copy of the code.\\ \\
-This code will allow you to import any (STD\_I32BE/IEEE\_F32BE) data with a single getData call. 
+This code will allow you to import any (STD\_I32LE/IEEE\_F32BE) data with a single getData call. 
 This is accomplished with the use of a Proxy class. We cannot normally overload the return type
 of a function, but if we use this proxy class we can cheat our way around that. 
 \\ \\
 To do this we first need to create our regular functions. In this case we have a function that will
-import and return STD\_I32BE data to a integer vector and another that does the same for IEEE\_F32BE
+import and return STD\_I32LE data to a integer vector and another that does the same for IEEE\_F32BE
 data (back to vector\textlangle{}float\textrangle{})
 \\ \\
 To modify this code you need to create another normal like function for the new data type. Note that
@@ -125,6 +125,12 @@ you will need to change some code because we explicitly state that we are lookin
 data in our import function.
 \\ \\
 The code itself contains a lot of comments, but does build upon previous work.
+
+\section*{writeAnyData}
+Again we are only using the long int (my native int) and the IEEE standard. In this case we do not need to overload the return type and use a proxy class. This is much simpler and
+we can just overload the input. In this case we can get our writeData function to do different things if it is passed an int vector or a float vector. We really could get it to
+do the same thing for any datatype. For example if you also wanted to be able to pass it arrays, not vectors, you could do the same thing there. Function overloading is an extremely
+useful practice. 
 
 
 \end{document}
