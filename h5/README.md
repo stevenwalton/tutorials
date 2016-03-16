@@ -25,3 +25,7 @@ types. This only uses 32 bit long integers and the IEEE standard for 32 bit floa
 Here we overload a return type by using a Proxy class. This allows us to read in either a 32LE int or an IEEE
 32B float with a single function. Note that you will have to change the vector from int to float or vise versa
 to load the proper data. 
+
+## PredType
+-------------
+[Here](https://www.hdfgroup.org/HDF5/doc/RM/PredefDTypes.html) is a link to the Predefined Datatypes that H5 offers
